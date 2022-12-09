@@ -8,7 +8,7 @@ import numpy as np
 
 def draw_text_box(tb: TextBox, image: np.ndarray):
     """Draws a red rectangle around the text box. Modifies the array in place."""
-    cv2.rectangle(image, (tb.x, tb.y), (tb.x + tb.w, tb.y + tb.h), (0, 0, 255), 2)
+    cv2.rectangle(image, (tb.x, tb.y), (tb.x + tb.h, tb.y + tb.w), (0, 0, 255), 2)
 
 
 def draw_text_boxes(tbs: Sequence[TextBox], in_path: str, out_path: str):

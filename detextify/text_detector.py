@@ -9,8 +9,8 @@ class TextBox:
   # x denotes the vertical axis, y denotes the horizontal axis (to match the traditional indexing in a matrix).
   x: int
   y: int
-  w: int
   h: int
+  w: int
   text: str = None
 
 

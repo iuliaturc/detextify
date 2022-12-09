@@ -26,8 +26,8 @@ class BasicTextDetector(TextDetector):
         contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         text_boxes = []
         for contour in contours:
-            x, y, w, h = cv2.boundingRect(contour)
-            text_boxes.append(TextBox(x, y, w, h))
+            x, y, h, w = cv2.boundingRect(contour)
+            text_boxes.append(TextBox(x, y, h, w))
 
         if self.debug_folder:
             # For debugging, output intermediate stages of the pipeline.

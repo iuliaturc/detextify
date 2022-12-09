@@ -49,11 +49,11 @@ class AzureTextDetector(TextDetector):
                     ys = [point for idx, point in enumerate(line.bounding_box) if idx % 2 == 1]
                     tl_x = min(xs)
                     tl_y = min(ys)
-                    w = max(xs) - tl_x
-                    h = max(ys) - tl_y
+                    h = max(xs) - tl_x
+                    w = max(ys) - tl_y
 
-                    if w < 0 or h < 0:
+                    if h < 0 or w < 0:
                         logging.error(f"Malformed bounding box from Azure: {line.bounding_box}")
 
-                    text_boxes.append(TextBox(int(tl_x), int(tl_y), int(w), int(h), line.text))
+                    text_boxes.append(TextBox(int(tl_x), int(tl_y), int(h), int(w), line.text))
         return text_boxes
