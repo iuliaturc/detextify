@@ -37,9 +37,3 @@ class BasicTextDetector(TextDetector):
             cv2.imwrite(os.path.join(self.debug_folder, name + "_dilation" + ext), dilation)
 
         return text_boxes
-
-
-#FILENAME = "/Users/ralu/Desktop/mj_sprint_other/text_only.jpeg"
-FILENAME = "/Users/ralu/Desktop/mj_sprint_other/replicate_with_text/1242_1.png"
-detector = BasicTextDetector("/tmp/text_detector")
-detector.detect_text(FILENAME)
