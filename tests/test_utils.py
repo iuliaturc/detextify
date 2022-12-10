@@ -13,13 +13,13 @@ class UtilsTestCase(unittest.TestCase):
         box2 = TextBox(x=100, y=200, w=25, h=10)
         self.assertAlmostEqual(utils.intersection_over_union(box1, box2), 0.5, places=1)
 
-    def test_merge_nerby_identical_boxes(self):
+    def test_merge_nearby_identical_boxes(self):
         """Tests that `merge_nearby_boxes` collapses identical boxes into one."""
         box1 = TextBox(x=100, y=200, w=50, h=10)
         result = utils.merge_nearby_boxes([box1, box1], max_distance=10)
         self.assertEqual(result, [box1])
 
-    def test_merge_nerby_close_boxes(self):
+    def test_merge_nearby_close_boxes(self):
         """Tests that `merge_nearby_boxes` merges boxes that are nearby."""
         box1 = TextBox(x=100, y=200, h=10, w=50)
         near_x = TextBox(x=95, y=200, h=10, w=50)
