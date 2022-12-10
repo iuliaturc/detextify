@@ -62,22 +62,28 @@ def main(_):
             if not os.path.exists(image_path):
                 logging.error(f"Unable to find image {image_path}.")
                 continue
+
             detected_boxes = detector.detect_text(image_path)
+            # Text detection might produce granular boxes (e.g. one per word); merge them to resemble the annotations.
+            merged_detected_boxes = utils.merge_nearby_boxes(detected_boxes, max_distance=30)
             golden_boxes = annotation_parser.convert_to_text_boxes(annotation)
 
-            if len(detected_boxes) != 1 or len(golden_boxes) != 1:
-                # TODO(julia): Figure out how to handle multiple text boxes.
-                continue
-
-            ious.append(utils.intersection_over_union(detected_boxes[0], golden_boxes[0]))
-
-            # Draw the boxes so that they can be inspected visually.
+            # For debugging purposes, draw all these boxes.
             image = cv2.imread(image_path)  # (B, G, R)
-            utils.draw_text_box(golden_boxes[0], image, color=(0, 255, 0))
-            utils.draw_text_box(detected_boxes[0], image, color=(0, 0, 255))
+            for box in detected_boxes:
+                utils.draw_text_box(box, image, color=(0, 255, 0), size=5)
+            for box in merged_detected_boxes:
+                utils.draw_text_box(box, image, color=(255, 0, 0), size=2)
+            for box in golden_boxes:
+                utils.draw_text_box(box, image, color=(0, 0, 255), size=2)
             output_path = os.path.join(FLAGS.output_dir, image_basename)
             cv2.imwrite(output_path, image)
 
+            if len(merged_detected_boxes) != 1 or len(golden_boxes) != 1:
+                # TODO(julia): Figure out how to handle multiple text boxes.
+                continue
+
+            ious.append(utils.intersection_over_union(merged_detected_boxes[0], golden_boxes[0]))
     print("Average IOU across %d images: %f" % (len(ious), np.mean(ious)))
 
 
