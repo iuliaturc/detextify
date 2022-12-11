@@ -79,11 +79,10 @@ def main(_):
             output_path = os.path.join(FLAGS.output_dir, image_basename)
             cv2.imwrite(output_path, image)
 
-            if len(merged_detected_boxes) != 1 or len(golden_boxes) != 1:
-                # TODO(julia): Figure out how to handle multiple text boxes.
-                continue
+            iou = utils.multi_intersection_over_union(merged_detected_boxes, golden_boxes)
+            print(f"IOU = {iou} for {image_basename}")
+            ious.append(iou)
 
-            ious.append(utils.intersection_over_union(merged_detected_boxes[0], golden_boxes[0]))
     print("Average IOU across %d images: %f" % (len(ious), np.mean(ious)))
 
 
