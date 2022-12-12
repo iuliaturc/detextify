@@ -4,8 +4,10 @@ import openai
 import replicate
 import requests
 import tempfile
+import torch
 
 from PIL import Image, ImageDraw
+from diffusers import StableDiffusionInpaintPipeline
 from text_detector import TextBox
 from typing import Sequence
 
@@ -54,32 +56,32 @@ class DalleInpainter(Inpainter):
     out_image.save(out_image_path)
 
 
-class ReplicateInpainter(Inpainter):
-  SD_INPAINTING_V15 = "andreasjansson/stable-diffusion-inpainting"
-  SD_INPAINTING_V15_VERSION = "8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848"
+def make_black_and_white_mask(text_boxes: Sequence[TextBox], height: int, width: int, out_mask_path: str):
+  """Returns a black image with white rectangles where the text boxes are."""
+  mask = Image.new("RGB", (width, height), (0, 0, 0))  # black
+  mask_draw = ImageDraw.Draw(mask)
+  for text_box in text_boxes:
+    mask_draw.rectangle(xy=(text_box.x, text_box.y, text_box.x + text_box.h, text_box.y + text_box.w),
+                        fill=(255, 255, 255))  # white
+  mask.save(out_mask_path)
 
-  def __init__(self, replicate_token: str, model_name=SD_INPAINTING_V15, model_version=SD_INPAINTING_V15_VERSION):
+
+class ReplicateInpainter(Inpainter):
+  SD_INPAINTING_V2 = "cjwbw/stable-diffusion-v2-inpainting"
+  SD_INPAINTING_V2_VERSION = "f9bb0632bfdceb83196e85521b9b55895f8ff3d1d3b487fd1973210c0eb30bec"
+
+  def __init__(self, replicate_token: str, model_name=SD_INPAINTING_V2, model_version=SD_INPAINTING_V2_VERSION):
     replicate_client = replicate.Client(api_token=replicate_token)
     self.model = replicate_client.models.get(model_name).versions.get(model_version)
-
-  @staticmethod
-  def _make_mask(text_boxes: Sequence[TextBox], height: int, width: int, out_mask_path: str):
-    """Returns a black image with white rectangles where the text boxes are."""
-    mask = Image.new("RGB", (width, height), (0, 0, 0))  # black
-    mask_draw = ImageDraw.Draw(mask)
-    for text_box in text_boxes:
-      mask_draw.rectangle(xy=(text_box.x, text_box.y, text_box.x + text_box.h, text_box.y + text_box.w),
-                          fill=(255, 255, 255))  # white
-    mask.save(out_mask_path)
 
   def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], out_image_path: str):
     image = Image.open(in_image_path)  # open the image to inspect its size
     mask_temp_file = tempfile.NamedTemporaryFile(suffix=".jpeg")
-    self._make_mask(text_boxes, image.height, image.width, mask_temp_file.name)
+    make_black_and_white_mask(text_boxes, image.height, image.width, mask_temp_file.name)
 
     url = self.model.predict(prompt=Inpainter.PROMPT,
                              image=open(in_image_path, "rb"),
-                             mask=open(mask_temp_file, "rb"),
+                             mask=open(mask_temp_file.name, "rb"),
                              num_outputs=1)[0]
 
     out_image_data = requests.get(url).content
@@ -87,10 +89,28 @@ class ReplicateInpainter(Inpainter):
     out_image.save(out_image_path)
 
 
-class LocalInpainter(Inpainter):
-  def __init__(self, inpainting_model_path: str):
-    self.inpainting_model_path = inpainting_model_path
+
+class DiffusersSDInpainter(Inpainter):
+  """Uses a Stable Diffusion model from HuggingFace for in-painting."""
+
+  def __init__(self, pipe: StableDiffusionInpaintPipeline = None):
+    if pipe is None:
+      if not torch.cuda.is_available():
+        raise Exception("You need a GPU + CUDA to run this model locally.")
+
+      self.pipe = StableDiffusionInpaintPipeline.from_pretrained(
+          "stabilityai/stable-diffusion-2-inpainting",
+          revision="fp16",
+          torch_dtype=torch.float16).to("cuda")
+    else:
+      self.pipe = pipe
 
   def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], out_image_path: str):
-    # TODO(julia): Implement this.
-    raise NotImplemented()
+    image = Image.open(in_image_path)
+
+    mask_temp_file = tempfile.NamedTemporaryFile(suffix=".jpeg")
+    make_black_and_white_mask(text_boxes, image.height, image.width, mask_temp_file.name)
+    mask_image = Image.open(mask_temp_file.name)
+
+    out_image = self.pipe(prompt=Inpainter.PROMPT, image=image, mask_image=mask_image).images[0]
+    out_image.save(out_image_path)
