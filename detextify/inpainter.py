@@ -55,10 +55,10 @@ class DalleInpainter(Inpainter):
 
 
 class ReplicateInpainter(Inpainter):
-  SD_INPAINTING_V15 = "andreasjansson/stable-diffusion-inpainting"
-  SD_INPAINTING_V15_VERSION = "8eb2da8345bee796efcd925573f077e36ed5fb4ea3ba240ef70c23cf33f0d848"
+  SD_INPAINTING_V2 = "cjwbw/stable-diffusion-v2-inpainting"
+  SD_INPAINTING_V2_VERSION = "f9bb0632bfdceb83196e85521b9b55895f8ff3d1d3b487fd1973210c0eb30bec"
 
-  def __init__(self, replicate_token: str, model_name=SD_INPAINTING_V15, model_version=SD_INPAINTING_V15_VERSION):
+  def __init__(self, replicate_token: str, model_name=SD_INPAINTING_V2, model_version=SD_INPAINTING_V2_VERSION):
     replicate_client = replicate.Client(api_token=replicate_token)
     self.model = replicate_client.models.get(model_name).versions.get(model_version)
 
@@ -79,7 +79,7 @@ class ReplicateInpainter(Inpainter):
 
     url = self.model.predict(prompt=Inpainter.PROMPT,
                              image=open(in_image_path, "rb"),
-                             mask=open(mask_temp_file, "rb"),
+                             mask=open(mask_temp_file.name, "rb"),
                              num_outputs=1)[0]
 
     out_image_data = requests.get(url).content
