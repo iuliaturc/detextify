@@ -15,10 +15,11 @@ import glob
 import numpy as np
 import os
 import utils
+from detextify.mmocr_text_detector import MMOCRTextDetector
 
 flags.DEFINE_string("input_dir", None, "Directory with input images.")
 flags.DEFINE_string("output_dir", None, "Directory with output images, with text boxes drawn on the input image.")
-flags.DEFINE_enum("mode", "BASIC", ["BASIC", "AZURE"], "Type of text detection.")
+flags.DEFINE_enum("mode", "BASIC", ["BASIC", "AZURE", "MMOCR"], "Type of text detection.")
 flags.DEFINE_string("azure_endpoint", None,
                     "Needed when --mode=AZURE. Should have the form https://<name>.cognitiveservices.azure.com/")
 flags.DEFINE_string("azure_key", None, "Needed when --mode=AZURE.")
@@ -31,6 +32,8 @@ FLAGS = flags.FLAGS
 def main(_):
     if FLAGS.mode == "BASIC":
         detector = BasicTextDetector()
+    elif FLAGS.mode == "MMOCR":
+        detector = MMOCRTextDetector(output_dir=FLAGS.output_dir)
     elif FLAGS.mode == "AZURE":
         if not FLAGS.azure_endpoint:
             raise ValueError("Please specify --azure_endpoint")
@@ -76,7 +79,7 @@ def main(_):
                 utils.draw_text_box(box, image, color=(255, 0, 0), size=2)
             for box in golden_boxes:
                 utils.draw_text_box(box, image, color=(0, 0, 255), size=2)
-            output_path = os.path.join(FLAGS.output_dir, image_basename)
+            output_path = os.path.join(FLAGS.output_dir, f"final_merged_{image_basename}")
             cv2.imwrite(output_path, image)
 
             iou = utils.multi_intersection_over_union(merged_detected_boxes, golden_boxes)
