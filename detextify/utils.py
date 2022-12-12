@@ -35,6 +35,33 @@ def intersection_over_union(box1: TextBox, box2: TextBox):
     return iou
 
 
+def multi_intersection_over_union(detected_boxes: Sequence[TextBox], gold_boxes: Sequence[TextBox]):
+    """Computes average IOU across the detected boxes.
+
+    For a particular detected box, finds the golden box with maximum IOU. Any gold box that doesn't intersect with any
+    of the detected boxes contributes to the average with a 0, to penalize poor recall.
+
+    This might not necessarily be the standard in academia, but we just need a consistent way of evaluating the quality
+    of various text detectors in our pipeline.
+    """
+    matched_golden_boxes = set()
+    max_ious = []
+    for db in detected_boxes:
+        ious = [intersection_over_union(db, gb) for gb in gold_boxes]
+        max_iou = max(ious)
+        max_ious.append(max_iou)
+        for idx, iou in enumerate(ious):
+            if iou == max_iou:
+                matched_golden_boxes.add(idx)
+
+    # For every golden box that did not match against a detected box, add a 0.
+    for idx in range(len(gold_boxes)):
+        if idx not in matched_golden_boxes:
+            max_ious.append(0.0)
+
+    return np.mean(max_ious)
+
+
 def merge_nearby_boxes(boxes: Sequence[TextBox], max_distance) -> Sequence[TextBox]:
     """Merges boxes that are less than `max_distance` pixels apart on both the x and y axes."""
     if len(boxes) <= 1:
