@@ -16,7 +16,7 @@ But try using any off-the-shelf generative vision model and you'll quickly see t
 your prompts.
 
 Specifically, you'll observe all kinds of weird artifacts on your images from extra fingers on hands, to arms coming out of chests,
-to alien text written all around your images.
+to alien text written in random places.
 
 For generative systems to actually be use-able in downstream applications, we need to better control these outputs
 and mitigate unwanted effects.
