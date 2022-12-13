@@ -5,8 +5,9 @@ TODO: Remove this file from the library before publishing.
 from absl import app
 from absl import logging
 from absl import flags
-from azure_text_detector import AzureTextDetector
-from basic_text_detector import BasicTextDetector
+from detextify.azure_text_detector import AzureTextDetector
+from detextify.basic_text_detector import BasicTextDetector
+from detextify.paddle_text_detector import PaddleTextDetector
 
 import annotation_parser
 import cv2
@@ -18,7 +19,7 @@ import utils
 
 flags.DEFINE_string("input_dir", None, "Directory with input images.")
 flags.DEFINE_string("output_dir", None, "Directory with output images, with text boxes drawn on the input image.")
-flags.DEFINE_enum("mode", "BASIC", ["BASIC", "AZURE"], "Type of text detection.")
+flags.DEFINE_enum("mode", "BASIC", ["BASIC", "AZURE", "PADDLE"], "Type of text detection.")
 flags.DEFINE_string("azure_endpoint", None,
                     "Needed when --mode=AZURE. Should have the form https://<name>.cognitiveservices.azure.com/")
 flags.DEFINE_string("azure_key", None, "Needed when --mode=AZURE.")
@@ -31,6 +32,8 @@ FLAGS = flags.FLAGS
 def main(_):
     if FLAGS.mode == "BASIC":
         detector = BasicTextDetector()
+    elif FLAGS.mode == "PADDLE":
+        detector = PaddleTextDetector()
     elif FLAGS.mode == "AZURE":
         if not FLAGS.azure_endpoint:
             raise ValueError("Please specify --azure_endpoint")
@@ -54,36 +57,39 @@ def main(_):
 
     # Evaluate detected text boxes against gold annotations.
     ious = []
-    with open(FLAGS.annotations_file) as f:
-        annotations = json.load(f)
-        for annotation in annotations:
-            image_basename = annotation_parser.get_image_basename(annotation)
-            image_path = os.path.join(FLAGS.input_dir, image_basename)
-            if not os.path.exists(image_path):
-                logging.error(f"Unable to find image {image_path}.")
-                continue
+    with open(os.path.join(FLAGS.output_dir, "iou.txt"), "w") as fout:
+        with open(FLAGS.annotations_file) as f:
+            annotations = json.load(f)
+            for annotation in annotations:
+                image_basename = annotation_parser.get_image_basename(annotation)
+                image_path = os.path.join(FLAGS.input_dir, image_basename)
+                if not os.path.exists(image_path):
+                    logging.error(f"Unable to find image {image_path}.")
+                    continue
 
-            detected_boxes = detector.detect_text(image_path)
-            # Text detection might produce granular boxes (e.g. one per word); merge them to resemble the annotations.
-            merged_detected_boxes = utils.merge_nearby_boxes(detected_boxes, max_distance=30)
-            golden_boxes = annotation_parser.convert_to_text_boxes(annotation)
+                detected_boxes = detector.detect_text(image_path)
+                # Text detection might produce granular boxes (e.g. one per word); merge them to resemble the annotations.
+                merged_detected_boxes = utils.merge_nearby_boxes(detected_boxes, max_distance=30)
+                golden_boxes = annotation_parser.convert_to_text_boxes(annotation)
 
-            # For debugging purposes, draw all these boxes.
-            image = cv2.imread(image_path)  # (B, G, R)
-            for box in detected_boxes:
-                utils.draw_text_box(box, image, color=(0, 255, 0), size=5)
-            for box in merged_detected_boxes:
-                utils.draw_text_box(box, image, color=(255, 0, 0), size=2)
-            for box in golden_boxes:
-                utils.draw_text_box(box, image, color=(0, 0, 255), size=2)
-            output_path = os.path.join(FLAGS.output_dir, image_basename)
-            cv2.imwrite(output_path, image)
+                # For debugging purposes, draw all these boxes.
+                image = cv2.imread(image_path)  # (B, G, R)
+                for box in detected_boxes:
+                    utils.draw_text_box(box, image, color=(0, 255, 0), size=5)
+                for box in merged_detected_boxes:
+                    utils.draw_text_box(box, image, color=(255, 0, 0), size=2)
+                for box in golden_boxes:
+                    utils.draw_text_box(box, image, color=(0, 0, 255), size=2)
+                output_path = os.path.join(FLAGS.output_dir, f"final_merged_{image_basename}")
+                cv2.imwrite(output_path, image)
 
-            iou = utils.multi_intersection_over_union(merged_detected_boxes, golden_boxes)
-            print(f"IOU = {iou} for {image_basename}")
-            ious.append(iou)
+                iou = utils.multi_intersection_over_union(merged_detected_boxes, golden_boxes)
+                print(f"IOU = {iou} for {image_basename}")
+                fout.write(f"IOU = {iou} for {image_basename}\n")
+                ious.append(iou)
 
-    print("Average IOU across %d images: %f" % (len(ious), np.mean(ious)))
+        print("Average IOU across %d images: %f" % (len(ious), np.mean(ious)))
+        fout.write("Average IOU across %d images: %f" % (len(ious), np.mean(ious)))
 
 
 if __name__ == "__main__":
