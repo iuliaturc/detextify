@@ -1,6 +1,6 @@
 from absl import logging
-from inpainter import Inpainter
-from text_detector import TextDetector
+from detextify.inpainter import Inpainter
+from detextify.text_detector import TextDetector
 
 
 class Detextifier:
