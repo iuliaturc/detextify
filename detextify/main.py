@@ -5,9 +5,7 @@ TODO: Remove this file from the library before publishing.
 from absl import app
 from absl import logging
 from absl import flags
-from detextify.azure_text_detector import AzureTextDetector
-from detextify.basic_text_detector import BasicTextDetector
-from detextify.paddle_text_detector import PaddleTextDetector
+from detextify.text_detector import AzureTextDetector, PaddleTextDetector
 
 import annotation_parser
 import cv2
@@ -19,7 +17,7 @@ import utils
 
 flags.DEFINE_string("input_dir", None, "Directory with input images.")
 flags.DEFINE_string("output_dir", None, "Directory with output images, with text boxes drawn on the input image.")
-flags.DEFINE_enum("mode", "BASIC", ["BASIC", "AZURE", "PADDLE"], "Type of text detection.")
+flags.DEFINE_enum("mode", "PADDLE", ["AZURE", "PADDLE"], "Type of text detection.")
 flags.DEFINE_string("azure_endpoint", None,
                     "Needed when --mode=AZURE. Should have the form https://<name>.cognitiveservices.azure.com/")
 flags.DEFINE_string("azure_key", None, "Needed when --mode=AZURE.")
@@ -30,9 +28,7 @@ FLAGS = flags.FLAGS
 
 
 def main(_):
-    if FLAGS.mode == "BASIC":
-        detector = BasicTextDetector()
-    elif FLAGS.mode == "PADDLE":
+    if FLAGS.mode == "PADDLE":
         detector = PaddleTextDetector()
     elif FLAGS.mode == "AZURE":
         if not FLAGS.azure_endpoint:
