@@ -48,6 +48,7 @@ You can remove unwanted text from your image in just 4 lines 💪:
 ```python
 from detextify.text_detector import PaddleTextDetector
 from detextify.inpainter import DiffusersSDInpainter
+
 detextifier = Detextifier(PaddleTextDetector(), DiffusersSDInpainter())
 detextifier.detextify("/my/input/image/path.png", "/my/output/image/path.png")
 ```
@@ -59,6 +60,7 @@ Or if you want to clean up a directory of PNG images, just use the following:
 import glob
 from detextify.text_detector import PaddleTextDetector
 from detextify.inpainter import DiffusersSDInpainter
+
 detextifier = Detextifier(PaddleTextDetector(), DiffusersSDInpainter())
 for img_file in glob.glob("/path/to/dir/*.png"):
     detextifier.detextify(img_file, img_file.replace(".png", "_detextified.png")
