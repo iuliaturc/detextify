@@ -1,9 +1,14 @@
 [tool.poetry]
 name = "detextify"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Julia <turc.raluca@gmail.com>", "Mihail <mihail911@gmail.com>"]
 readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"

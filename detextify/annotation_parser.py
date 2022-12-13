@@ -1,6 +1,6 @@
 import os
 from typing import Dict, Optional, Sequence
-from text_detector import TextBox
+from detextify.text_detector import TextBox
 
 
 def convert_to_text_box(result: Dict) -> Optional[TextBox]:

@@ -8,7 +8,7 @@ import torch
 
 from PIL import Image, ImageDraw
 from diffusers import StableDiffusionInpaintPipeline
-from text_detector import TextBox
+from detextify.text_detector import TextBox
 from typing import Sequence
 
 

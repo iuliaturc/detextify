@@ -1,5 +1,5 @@
 """Utility methods."""
-from text_detector import TextBox
+from detextify.text_detector import TextBox
 from typing import List, Sequence
 
 import cv2
