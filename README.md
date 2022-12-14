@@ -24,7 +24,7 @@ and mitigate unwanted effects.
 We believe the next frontier for generative AI is about **robustness** and **trust**. In other words, how can we architect
 these systems to be controllable, relevant, and predictably consistent with our needs?
 
-`Detextify` is the first phase in our vision of robustifying generative AI systems.
+`Detextify` is the first phase in our vision of robustifying generative AI.
 
 If we get this right, we will unlock slews of new applications for generative systems that will change the landscape of human-AI collaboration. 🌎
 
