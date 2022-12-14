@@ -22,7 +22,7 @@ For generative systems to actually be usable in downstream applications, we need
 and mitigate unwanted effects.
 
 We believe the next frontier for generative AI is about **robustness** and **trust**. In other words, how can we architect
-these system to be controllable, relevant, and predictably consistent with our needs?
+these systems to be controllable, relevant, and predictably consistent with our needs?
 
 `Detextify` is the first phase in our vision of robustifying generative AI systems.
 
