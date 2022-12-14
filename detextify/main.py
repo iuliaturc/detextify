@@ -5,7 +5,8 @@ TODO: Remove this file from the library before publishing.
 from absl import app
 from absl import logging
 from absl import flags
-from detextify.text_detector import AzureTextDetector, PaddleTextDetector
+from detextify.text_detector import AzureTextDetector
+from detextify.paddle_text_detector import PaddleTextDetector
 
 import annotation_parser
 import cv2
