@@ -4,10 +4,8 @@ import openai
 import replicate
 import requests
 import tempfile
-import torch
 
 from PIL import Image, ImageDraw
-from diffusers import StableDiffusionInpaintPipeline
 from detextify.text_detector import TextBox
 from typing import Sequence
 
@@ -86,31 +84,4 @@ class ReplicateInpainter(Inpainter):
 
     out_image_data = requests.get(url).content
     out_image = Image.open(io.BytesIO(out_image_data))
-    out_image.save(out_image_path)
-
-
-
-class DiffusersSDInpainter(Inpainter):
-  """Uses a Stable Diffusion model from HuggingFace for in-painting."""
-
-  def __init__(self, pipe: StableDiffusionInpaintPipeline = None):
-    if pipe is None:
-      if not torch.cuda.is_available():
-        raise Exception("You need a GPU + CUDA to run this model locally.")
-
-      self.pipe = StableDiffusionInpaintPipeline.from_pretrained(
-          "stabilityai/stable-diffusion-2-inpainting",
-          revision="fp16",
-          torch_dtype=torch.float16).to("cuda")
-    else:
-      self.pipe = pipe
-
-  def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], out_image_path: str):
-    image = Image.open(in_image_path)
-
-    mask_temp_file = tempfile.NamedTemporaryFile(suffix=".jpeg")
-    make_black_and_white_mask(text_boxes, image.height, image.width, mask_temp_file.name)
-    mask_image = Image.open(mask_temp_file.name)
-
-    out_image = self.pipe(prompt=Inpainter.PROMPT, image=image, mask_image=mask_image).images[0]
     out_image.save(out_image_path)
