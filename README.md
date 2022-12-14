@@ -39,6 +39,14 @@ until your image is text-free. `Detextify` can be run entirely on your local mac
 
 ## Installation
 ```commandline
+# On a GPU-enabled machine
+pip install paddlepaddle-gpu -i https://mirror.baidu.com/pypi/simple
+pip install detextify
+```
+
+```commandline
+# On a CPU-only machine
+pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install detextify
 ```
 
@@ -48,6 +56,7 @@ You can remove unwanted text from your image in just 4 lines 💪:
 ```python
 from detextify.paddle_text_detector import PaddleTextDetector
 from detextify.sd_local_inpainter import DiffusersSDInpainter
+from detextify.detextifier import Detextifier
 
 detextifier = Detextifier(PaddleTextDetector(), DiffusersSDInpainter())
 detextifier.detextify("/my/input/image/path.png", "/my/output/image/path.png")
@@ -60,6 +69,7 @@ Or if you want to clean up a directory of PNG images, just wrap it in a for-loop
 import glob
 from detextify.paddle_text_detector import PaddleTextDetector
 from detextify.sd_local_inpainter import DiffusersSDInpainter
+from detextify.detextifier import Detextifier
 
 detextifier = Detextifier(PaddleTextDetector(), DiffusersSDInpainter())
 for img_file in glob.glob("/path/to/dir/*.png"):
