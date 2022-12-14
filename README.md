@@ -33,7 +33,7 @@ If we get this right, we will unlock slews of new applications for generative sy
 `Detextify` runs text detection on your image, masks the text boxes, and in-paints the masked regions
 until your image is text-free. `Detextify` can be run entirely on your local machine (using
 [Paddle](https://github.com/PaddlePaddle/PaddleOCR) for text detection and
-[Stable Diffusion](https://huggingface.co/stabilityai/stable-diffusion-2-inpainting) for in-painting), or call existing APIs
+[Stable Diffusion](https://huggingface.co/stabilityai/stable-diffusion-2-inpainting) for in-painting), or can call existing APIs
 ([Azure](https://azure.microsoft.com/en-us/products/cognitive-services/computer-vision/) for text detection and
 [OpenAI](https://openai.com/dall-e-2/) or [Replicate](https://replicate.com/) for in-painting).
 
