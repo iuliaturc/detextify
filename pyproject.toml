@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "detextify"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = ["Julia <turc.raluca@gmail.com>", "Mihail <mihail911@gmail.com>"]
 readme = "README.md"
@@ -23,7 +23,6 @@ torch = "^1.13.0"
 diffusers = "^0.10.2"
 transformers = "^4.25.1"
 accelerate = "^0.15.0"
-paddlepaddle = "^2.4.1"
 paddleocr = "^2.6.1.2"
 
 [tool.poetry.group.dev.dependencies]
