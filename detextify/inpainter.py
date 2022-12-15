@@ -124,23 +124,24 @@ class ReplicateSDInpainter(StableDiffusionInpainter):
     replicate_client = replicate.Client(api_token=replicate_token)
     self.model = replicate_client.models.get(model_name).versions.get(model_version)
 
-  def _pil_image_to_bytes(self, image: Image) -> bytes:
-    bytes_arr = io.BytesIO()
-    image.save(bytes_arr, format="PNG")
-    return bytes_arr.getvalue()
-
   def call_model(self, prompt: str, image: Image, mask: Image) -> Image:
+    # Replicate expects a file object as an input.
+    img_temp_file = tempfile.NamedTemporaryFile(suffix=".jpeg")
+    image.save(img_temp_file)
+    mask_temp_file = tempfile.NamedTemporaryFile(suffix=".jpeg")
+    mask.save(mask_temp_file)
+
     url = self.model.predict(prompt=prompt,
                              prompt_strength=1.0,
-                             image=self._pil_image_to_bytes(image),
-                             mask=self._pil_image_to_bytes(mask),
+                             image=open(img_temp_file.name, "rb"),
+                             mask=open(mask_temp_file.name, "rb"),
                              num_outputs=1)[0]
     out_image_data = requests.get(url).content
     out_image = Image.open(io.BytesIO(out_image_data))
     return out_image
 
 
-class LocalSDInpainter(Inpainter):
+class LocalSDInpainter(StableDiffusionInpainter):
   """Uses a local Stable Diffusion model from HuggingFace for in-painting."""
 
   def __init__(self, pipe: StableDiffusionInpaintPipeline = None):

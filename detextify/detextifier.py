@@ -21,19 +21,7 @@ class Detextifier:
 
             print(f"\tCalling in-painting model...")
             self.inpainter.inpaint(to_inpaint_path, text_boxes, prompt, out_image_path)
+            import os
+            assert os.path.exists(out_image_path)
             to_inpaint_path = out_image_path
 
-
-from detextify.paddle_text_detector import PaddleTextDetector
-from detextify.inpainter import ReplicateSDInpainter
-from detextify.detextifier import Detextifier
-from absl import app
-
-def main(argv):
-  td = PaddleTextDetector()
-  inp = ReplicateSDInpainter("3480af9c7d0d8b1742c7c3f0fca8ef70d7820eb2")
-  det = Detextifier(td, inp)
-  det.detextify("../images/octopus.png", "../images/octopus_out.png")
-
-if __name__ == "__main__":
-    app.run(main)

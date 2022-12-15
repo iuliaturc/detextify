@@ -12,7 +12,7 @@
 
 We all know generative AI is the coolest thing since sliced bread 🍞.
 
-But try using any off-the-shelf generative vision model and you'll quickly see that these systems can get...creative with interpreting
+But try using any off-the-shelf generative vision model and you'll quickly see that these systems can get... creative with interpreting
 your prompts.
 
 Specifically, you'll observe all kinds of weird artifacts on your images from extra fingers on hands, to arms coming out of chests,
@@ -75,7 +75,6 @@ detextifier = Detextifier(PaddleTextDetector(), LocalSDInpainter())
 for img_file in glob.glob("/path/to/dir/*.png"):
     detextifier.detextify(img_file, img_file.replace(".png", "_detextified.png")
 ```
-
 
 We provide multiple implementations for text detection and in-painting (both local and API-based), and you are also free to add your own.
 
