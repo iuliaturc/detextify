@@ -8,7 +8,7 @@ class Detextifier:
         self.text_detector = text_detector
         self.inpainter = inpainter
 
-    def detextify(self, in_image_path: str, out_image_path: str, max_retries=5):
+    def detextify(self, in_image_path: str, out_image_path: str, prompt=Inpainter.DEFAULT_PROMPT, max_retries=5):
         to_inpaint_path = in_image_path
         for i in range(max_retries):
             logging.info(f"Inpainting iteration {i} for image {in_image_path}...")
@@ -16,5 +16,6 @@ class Detextifier:
             logging.info(f"Detected {len(text_boxes)} text boxes.")
             if not text_boxes:
                 break
-            self.inpainter.inpaint(to_inpaint_path, text_boxes, out_image_path)
+            self.inpainter.inpaint(to_inpaint_path, text_boxes, prompt, out_image_path)
             to_inpaint_path = out_image_path
+

@@ -13,9 +13,9 @@ from typing import Sequence
 class Inpainter:
   """Interface for in-painting models."""
   # TODO(julia): Run some experiments to determine the best prompt.
-  PROMPT = "plain background"
+  DEFAULT_PROMPT = "plain background"
 
-  def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], out_image_path: str):
+  def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], prompt: str, out_image_path: str):
     pass
 
 
@@ -38,13 +38,13 @@ class DalleInpainter(Inpainter):
     mask.save(bytes_arr, format="PNG")
     return bytes_arr.getvalue()
 
-  def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], out_image_path: str):
+  def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], prompt: str, out_image_path: str):
     image = Image.open(in_image_path)  # open the image to inspect its size
 
     response = openai.Image.create_edit(
         image=open(in_image_path, "rb"),
         mask=self._make_mask(text_boxes, image.height, image.width),
-        prompt=Inpainter.PROMPT,
+        prompt=prompt,
         n=1,
         size=f"{image.height}x{image.width}"
     )
@@ -72,12 +72,13 @@ class ReplicateInpainter(Inpainter):
     replicate_client = replicate.Client(api_token=replicate_token)
     self.model = replicate_client.models.get(model_name).versions.get(model_version)
 
-  def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], out_image_path: str):
+  def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], prompt: str, out_image_path: str):
     image = Image.open(in_image_path)  # open the image to inspect its size
     mask_temp_file = tempfile.NamedTemporaryFile(suffix=".jpeg")
     make_black_and_white_mask(text_boxes, image.height, image.width, mask_temp_file.name)
 
-    url = self.model.predict(prompt=Inpainter.PROMPT,
+    url = self.model.predict(prompt=prompt,
+                             prompt_strength=1.0,
                              image=open(in_image_path, "rb"),
                              mask=open(mask_temp_file.name, "rb"),
                              num_outputs=1)[0]

@@ -62,16 +62,23 @@ def multi_intersection_over_union(detected_boxes: Sequence[TextBox], gold_boxes:
     return np.mean(max_ious)
 
 
+def overlap_x(box1: TextBox, box2: TextBox) -> int:
+    return min(box1.x + box1.h, box2.x + box2.h) - max(box1.x, box2.x)
+
+
+def overlap_y(box1: TextBox, box2: TextBox) -> int:
+    return min(box1.y + box1.w, box2.y + box2.w) - max(box1.y, box2.y)
+
+
+def boxes_intersect(box1: TextBox, box2: TextBox) -> bool:
+    return overlap_x(box1, box2) > 0 and overlap_y(box1, box2) > 0
+
+
 def merge_nearby_boxes(boxes: Sequence[TextBox], max_distance) -> Sequence[TextBox]:
     """Merges boxes that are less than `max_distance` pixels apart on both the x and y axes."""
     if len(boxes) <= 1:
         return boxes
 
-    def overlap_x(box1: TextBox, box2: TextBox) -> int:
-        return min(box1.x + box1.h, box2.x + box2.h) - max(box1.x, box2.x)
-
-    def overlap_y(box1: TextBox, box2: TextBox) -> int:
-        return min(box1.y + box1.w, box2.y + box2.w) - max(box1.y, box2.y)
 
     def should_merge(box1: TextBox, box2: TextBox) -> bool:
         # Boxes need to overlap on one axis and be close to each other on the other axis.
