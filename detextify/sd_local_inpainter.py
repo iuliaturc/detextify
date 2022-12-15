@@ -60,8 +60,6 @@ class DiffusersSDInpainter(Inpainter):
       for x in range(0, image.height, SD_SIZE):
         for y in range(0, image.width, SD_SIZE):
           if tile_has_text_box(x, y, SD_SIZE, text_boxes):
-            print(f"In-painting tile with top-left=({x}, {y})...")
-
             crop_x1 = min(x + SD_SIZE, image.height)
             crop_y1 = min(y + SD_SIZE, image.width)
             crop_box = (x, y, crop_x1, crop_y1)
@@ -69,7 +67,7 @@ class DiffusersSDInpainter(Inpainter):
             in_tile = pad_to_size(image.crop(crop_box), SD_SIZE)
             in_mask = pad_to_size(mask_image.crop(crop_box), SD_SIZE)
 
-            out_tile = self.pipe(prompt=prompt, prompt_strength=1.0, image=in_tile, mask_image=in_mask).images[0]
+            out_tile = self.pipe(prompt=prompt, image=in_tile, mask_image=in_mask).images[0]
             out_tile = out_tile.crop((0, 0, crop_x1 - x, crop_y1 - y))
             out_image.paste(out_tile, (x, y))
 

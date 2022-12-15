@@ -1,8 +1,10 @@
-from absl import logging
 from detextify.text_detector import TextBox, TextDetector
 from paddleocr import PaddleOCR
 from typing import Sequence
 from PIL import Image
+
+import logging
+paddle_logger = logging.getLogger("ppocr").setLevel(logging.ERROR)
 
 # This class is separate from `text_detector.py` because it depends on the paddle library, which has many wheels
 # (see https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/develop/install/pip/linux-pip.html).
@@ -39,7 +41,7 @@ class PaddleTextDetector(TextDetector):
       w = max(ys) - tl_y
 
       if h < 0 or w < 0:
-        logging.error(f"Malformed bounding box from Paddle: {points}")
+        logger.error(f"Malformed bounding box from Paddle: {points}")
 
       if self.pad_size:
           tl_x = max(0, tl_x - self.pad_size)
@@ -52,3 +54,4 @@ class PaddleTextDetector(TextDetector):
 
       text_boxes.append(TextBox(int(tl_x), int(tl_y), int(h), int(w), text))
     return text_boxes
+
