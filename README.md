@@ -55,10 +55,10 @@ pip install detextify
 You can remove unwanted text from your image in just 4 lines 💪:
 ```python
 from detextify.paddle_text_detector import PaddleTextDetector
-from detextify.sd_local_inpainter import DiffusersSDInpainter
+from detextify.inpainter import LocalSDInpainter
 from detextify.detextifier import Detextifier
 
-detextifier = Detextifier(PaddleTextDetector(), DiffusersSDInpainter())
+detextifier = Detextifier(PaddleTextDetector(), LocalSDInpainter())
 detextifier.detextify("/my/input/image/path.png", "/my/output/image/path.png")
 ```
 
@@ -68,10 +68,10 @@ Or if you want to clean up a directory of PNG images, just wrap it in a for-loop
 ```python
 import glob
 from detextify.paddle_text_detector import PaddleTextDetector
-from detextify.sd_local_inpainter import DiffusersSDInpainter
+from detextify.inpainter import LocalSDInpainter
 from detextify.detextifier import Detextifier
 
-detextifier = Detextifier(PaddleTextDetector(), DiffusersSDInpainter())
+detextifier = Detextifier(PaddleTextDetector(), LocalSDInpainter())
 for img_file in glob.glob("/path/to/dir/*.png"):
     detextifier.detextify(img_file, img_file.replace(".png", "_detextified.png")
 ```
@@ -92,15 +92,15 @@ text_detector = AzureTextDetector(AZURE_CV_ENDPOINT, AZURE_CV_KEY)
 Our evaluation shows that the two text detectors produce comparable results.
 
 ### In-painters
-1. `DiffusersSDInpainter` (implemented via Huggingface's `diffusers` library) runs locally. Defaults to
+1. `LocalSDInpainter` (implemented via Huggingface's `diffusers` library) runs locally and requires a GPU. Defaults to
 [Stable Diffusion v2 for in-painting](https://huggingface.co/stabilityai/stable-diffusion-2-inpainting).
-2. `ReplicateInpainter` calls the [Replicate](https://replicate.com) API. Defaults to Stable Diffusion v2 for
-in-painting (and requires  a key).
+2. `ReplicateSDInpainter` calls the [Replicate](https://replicate.com) API. Defaults to Stable Diffusion v2 for
+in-painting (and requires an API key).
 3. `DalleInpainter` calls the [DALL·E 2](https://labs.openai.com) API from OpenAI (and requires an API key).
 ```python
 # You only need to instantiate one of the following:
-local_inpainter = DiffusersSDInpainter()
-replicate_inpainter = ReplicateInpainter("your-replicate-key")
+local_inpainter = LocalSDInpainter()
+replicate_inpainter = ReplicateSDInpainter("your-replicate-key")
 dalle_inpainter = DalleInpainter("your-openai-key")
 ```
 
