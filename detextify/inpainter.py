@@ -75,21 +75,22 @@ class StableDiffusionInpainter(Inpainter):
     new_image.paste(image)
     return new_image
 
-  def _make_black_and_white_mask(self, text_boxes: Sequence[TextBox], height: int, width: int, out_mask_path: str):
+  def _make_mask(self, text_boxes: Sequence[TextBox], height: int, width: int, mode: str) -> Image:
     """Returns a black image with white rectangles where the text boxes are."""
-    mask = Image.new("RGB", (width, height), (0, 0, 0))  # black
+    num_channels = len(mode)
+    background_color = tuple([0] * num_channels)
+    mask_color = tuple([255] * num_channels)
+
+    mask = Image.new(mode, (width, height), background_color)
     mask_draw = ImageDraw.Draw(mask)
     for text_box in text_boxes:
       mask_draw.rectangle(xy=(text_box.x, text_box.y, text_box.x + text_box.h, text_box.y + text_box.w),
-                          fill=(255, 255, 255))  # white
-    mask.save(out_mask_path)
+                          fill=mask_color)
+    return mask
 
   def inpaint(self, in_image_path: str, text_boxes: Sequence[TextBox], prompt: str, out_image_path: str):
     image = Image.open(in_image_path)
-
-    mask_temp_file = tempfile.NamedTemporaryFile(suffix=".jpeg")
-    self._make_black_and_white_mask(text_boxes, image.height, image.width, mask_temp_file.name)
-    mask_image = Image.open(mask_temp_file.name)
+    mask_image = self._make_mask(text_boxes, image.height, image.width, image.mode)
 
     # SD only accepts images that are exactly 512 x 512.
     SD_SIZE = 512
@@ -99,6 +100,9 @@ class StableDiffusionInpainter(Inpainter):
     else:
       # Break the image into 512 x 512 tiles. In-paint the tiles that contain text boxes.
       out_image = image.copy()
+
+      # Used for the final out_image.paste; required to be in mode L.
+      mask_binary = self._make_mask(text_boxes, image.height, image.width, "L")
 
       for x in range(0, image.height, SD_SIZE):
         for y in range(0, image.width, SD_SIZE):
@@ -111,7 +115,8 @@ class StableDiffusionInpainter(Inpainter):
             in_mask = self._pad_to_size(mask_image.crop(crop_box), SD_SIZE)
             out_tile = self.call_model(prompt=prompt, image=in_tile, mask=in_mask)
             out_tile = out_tile.crop((0, 0, crop_x1 - x, crop_y1 - y))
-            out_image.paste(out_tile, (x, y))
+            out_mask = mask_binary.crop(crop_box)
+            out_image.paste(out_tile, (x, y), out_mask)
 
     out_image.save(out_image_path)
 
