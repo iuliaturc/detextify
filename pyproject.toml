@@ -12,7 +12,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-numpy = "^1.23.5"
+# See https://github.com/PaddlePaddle/PaddleOCR/issues/8743; once that is fixed, we can use the latest version of numpy.
+numpy = "1.23.5"
 absl-py = "^1.3.0"
 azure-cognitiveservices-vision-computervision = "^0.9.0"
 openai = "^0.25.0"
