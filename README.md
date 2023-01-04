@@ -52,7 +52,7 @@ pip install detextify
 
 ## Usage
 
-You can remove unwanted text from your image in just 4 lines 💪:
+You can remove unwanted text from your image in just 5 lines 💪:
 ```python
 from detextify.paddle_text_detector import PaddleTextDetector
 from detextify.inpainter import LocalSDInpainter
