@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "detextify"
-version = "0.1.7"
+version = "0.1.8"
 description = ""
 authors = ["Julia <turc.raluca@gmail.com>", "Mihail <mihail911@gmail.com>"]
 readme = "README.md"
