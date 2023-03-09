@@ -73,7 +73,7 @@ from detextify.detextifier import Detextifier
 
 detextifier = Detextifier(PaddleTextDetector(), LocalSDInpainter())
 for img_file in glob.glob("/path/to/dir/*.png"):
-    detextifier.detextify(img_file, img_file.replace(".png", "_detextified.png")
+    detextifier.detextify(img_file, img_file.replace(".png", "_detextified.png"))
 ```
 
 We provide multiple implementations for text detection and in-painting (both local and API-based), and you are also free to add your own.
