@@ -38,14 +38,15 @@ until your image is text-free. `Detextify` can be run entirely on your local mac
 [OpenAI](https://openai.com/dall-e-2/) or [Replicate](https://replicate.com/) for in-painting).
 
 ## Installation
+### On a GPU-enabled machine:
+First, make sure you have CUDA and cuDNN installed. Check [here](https://pypi.org/project/paddlepaddle-gpu/) which versions work with `paddlepaddle-gpu`, how to install them, and how to verify the installation.
 ```commandline
-# On a GPU-enabled machine
 pip install paddlepaddle-gpu -i https://mirror.baidu.com/pypi/simple
 pip install detextify
 ```
 
+### On a CPU-only machine
 ```commandline
-# On a CPU-only machine
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install detextify
 ```
