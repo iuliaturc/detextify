@@ -47,6 +47,7 @@ Additionally:
 - To run in-painting locally (as opposed to using the OpenAI or Replicate APIs), you need a GPU with CUDA and cuDNN installed.
 
 ## Usage
+See [this Colab notebook](https://colab.research.google.com/drive/1a8BJ55yT88IKDyzFuk3jqdATZ_jZ2cwy?usp=sharing) for how to use the library, or follow the instructions below.
 
 You can remove unwanted text from your image in just a few lines 💪:
 ```python
