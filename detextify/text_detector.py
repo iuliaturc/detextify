@@ -2,7 +2,9 @@
 from absl import logging
 from dataclasses import dataclass
 from typing import Sequence
+from PIL import Image
 
+import pytesseract
 import time
 
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
@@ -75,3 +77,22 @@ class AzureTextDetector(TextDetector):
 
           text_boxes.append(TextBox(int(tl_x), int(tl_y), int(h), int(w), line.text))
     return text_boxes
+
+
+class TesseractTextDetector(TextDetector):
+  """Uses the `tesseract` OCR library from Google to do text detection."""
+
+  def __init__(self, tesseract_path: str):
+    """
+    Args:
+      tesseract_path: The path where the `tesseract` library is installed, e.g. "/usr/bin/tesseract".
+    """
+    pytesseract.pytesseract.tesseract_cmd = tesseract_path
+
+  def detect_text(self, image_filename: str) -> Sequence[TextBox]:
+    image = Image.open(image_filename)
+    data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+    boxes = [TextBox(l, top, w, h, text)
+             for l, top, w, h, text in zip(data["left"], data["top"], data["width"], data["height"], data["text"])
+             if text.strip()]
+    return boxes

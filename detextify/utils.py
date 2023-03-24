@@ -1,23 +1,17 @@
 """Utility methods."""
+from PIL import Image, ImageDraw
 from detextify.text_detector import TextBox
 from typing import List, Sequence
 
-import cv2
 import itertools
 import numpy as np
 
 
-def draw_text_box(tb: TextBox, image: np.ndarray, color=(0, 0, 255), size=2):
+def draw_text_box(tb: TextBox, image: Image, outline="red"):
     """Draws a red rectangle around the text box. Modifies the array in place."""
-    cv2.rectangle(image, (tb.x, tb.y), (tb.x + tb.h, tb.y + tb.w), color, size)
-
-
-def draw_text_boxes(tbs: Sequence[TextBox], in_path: str, out_path: str, color=(0, 0, 255)):
-    """Draws red rectangles around the given text boxes."""
-    image = cv2.imread(in_path)
-    for tb in tbs:
-        draw_text_box(tb, image, color)
-    cv2.imwrite(out_path, image)
+    img_draw = ImageDraw.Draw(image)
+    shape = [(tb.x, tb.y), (tb.x + tb.h, tb.y + tb.w)]
+    img_draw.rectangle(shape, outline=outline)
 
 
 def intersection_over_union(box1: TextBox, box2: TextBox):

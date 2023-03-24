@@ -32,34 +32,30 @@ If we get this right, we will unlock slews of new applications for generative sy
 
 `Detextify` runs text detection on your image, masks the text boxes, and in-paints the masked regions
 until your image is text-free. `Detextify` can be run entirely on your local machine (using
-[Paddle](https://github.com/PaddlePaddle/PaddleOCR) for text detection and
+[Tesseract](https://github.com/tesseract-ocr/tesseract) for text detection and
 [Stable Diffusion](https://huggingface.co/stabilityai/stable-diffusion-2-inpainting) for in-painting), or can call existing APIs
 ([Azure](https://azure.microsoft.com/en-us/products/cognitive-services/computer-vision/) for text detection and
 [OpenAI](https://openai.com/dall-e-2/) or [Replicate](https://replicate.com/) for in-painting).
 
 ## Installation
-### On a GPU-enabled machine:
-First, make sure you have CUDA and cuDNN installed. Check [here](https://pypi.org/project/paddlepaddle-gpu/) which versions work with `paddlepaddle-gpu`, how to install them, and how to verify the installation.
 ```commandline
-pip install paddlepaddle-gpu -i https://mirror.baidu.com/pypi/simple
 pip install detextify
 ```
 
-### On a CPU-only machine
-```commandline
-pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
-pip install detextify
-```
+Additionally:
+- To run text detection locally (as opposed to using the Azure API), you need to [install Tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html).
+- To run in-painting locally (as opposed to using the OpenAI or Replicate APIs), you need a GPU with CUDA and cuDNN installed.
 
 ## Usage
 
-You can remove unwanted text from your image in just 5 lines 💪:
+You can remove unwanted text from your image in just a few lines 💪:
 ```python
-from detextify.paddle_text_detector import PaddleTextDetector
+from detextify.text_detector import TesseractTextDetector
 from detextify.inpainter import LocalSDInpainter
 from detextify.detextifier import Detextifier
 
-detextifier = Detextifier(PaddleTextDetector(), LocalSDInpainter())
+text_detector = TesseractTextDetector("/path/to/tesseract/installation")
+detextifier = Detextifier(text_detector, LocalSDInpainter())
 detextifier.detextify("/my/input/image/path.png", "/my/output/image/path.png")
 ```
 
@@ -68,11 +64,12 @@ and 💣💥, just like that, your image is cleared of any bizarre text artifact
 Or if you want to clean up a directory of PNG images, just wrap it in a for-loop:
 ```python
 import glob
-from detextify.paddle_text_detector import PaddleTextDetector
+from detextify.text_detector import TesseractTextDetector
 from detextify.inpainter import LocalSDInpainter
 from detextify.detextifier import Detextifier
 
-detextifier = Detextifier(PaddleTextDetector(), LocalSDInpainter())
+text_detector = TesseractTextDetector("/path/to/tesseract/installation")
+detextifier = Detextifier(text_detector, LocalSDInpainter())
 for img_file in glob.glob("/path/to/dir/*.png"):
     detextifier.detextify(img_file, img_file.replace(".png", "_detextified.png"))
 ```
@@ -80,7 +77,17 @@ for img_file in glob.glob("/path/to/dir/*.png"):
 We provide multiple implementations for text detection and in-painting (both local and API-based), and you are also free to add your own.
 
 ### Text Detectors
-1. `PaddleTextDetector` (based on [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)) runs locally.
+1. `TesseractTextDetector` (based on [Tesseract](https://github.com/tesseract-ocr/tesseract)) runs locally.
+Follow [this guide](https://tesseract-ocr.github.io/tessdoc/Installation.html) to install the `tesseract` library locally. On Ubuntu:
+```
+sudo apt install tesseract-ocr
+sudo apt install libtesseract-dev
+```
+To find the path where it was installed (and pass it to the `TesseractTextDetector` constructor):
+```
+whereis tesseract
+```
+
 2. `AzureTextDetector` calls a computer vision API from Microsoft Azure. You will first need to create a
 [Computer Vision resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesComputerVision) via the Azure
 portal. Once created, take note of the endpoint and the key.
