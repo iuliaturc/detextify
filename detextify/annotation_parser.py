@@ -40,3 +40,6 @@ def test_method_without_docstring():
 
 def test_method_without_docstring_v2():
     pass
+
+def test_method_without_docstring_v3():
+    pass
