@@ -37,3 +37,6 @@ def get_image_basename(annotation: Dict) -> str:
 
 def test_method_without_docstring():
     pass
+
+def test_method_without_docstring_v2():
+    pass
