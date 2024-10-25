@@ -6,7 +6,7 @@ from detextify.text_detector import TextBox
 def convert_to_text_box(result: Dict) -> Optional[TextBox]:
     if 'original_width' not in result or 'original_height' not in result:
         return None
-    
+
     value = result['value']
     # Since we made the annotations, we flipped the meaning of "height" and "weight" in TextBox to be more intuitive.
     # Now, height is for vertical and width is for horizontal.
@@ -34,3 +34,12 @@ def convert_to_text_boxes(annotation: Dict) -> Sequence[TextBox]:
 
 def get_image_basename(annotation: Dict) -> str:
     return os.path.basename("".join(annotation["data"]["data"].split("-")[1:]))
+
+def test_method_without_docstring():
+    pass
+
+def test_method_without_docstring_v2():
+    pass
+
+def test_method_without_docstring_v3():
+    pass
